@@ -281,6 +281,23 @@ FIX - CORY WILL ADD COLLOCATION ANALYSIS HERE
 
 ```{r, message = FALSE}
 
+# Identify collocations
+news_cols = tokens_select(news_toks, pattern = "^[A-Z]", 
+                                valuetype = "regex", 
+                                case_insensitive = FALSE) %>% 
+                  textstat_collocations(min_count = 10, size=2:3) # specify size
+View(news_cols)
+
+# Incorporate collocations into dfm toks
+news_dfm =  tokens_compound(news_toks, news_cols, concatenator = " ") %>%
+    tokens_wordstem ()%>% # stem words after adding collocations
+    dfm(tolower = TRUE)  %>% 
+    dfm_trim(min_termfreq = 10, min_docfreq = 10)  
+
+# Observe collocations ("united st")
+textstat_frequency(news_dfm) %>%
+  head(50)
+
 ```
 
 \
