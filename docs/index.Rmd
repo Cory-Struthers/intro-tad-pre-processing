@@ -3,9 +3,16 @@ title: "Pre-processing text"
 subtitle: "Introduction to Text as Data"
 author: "Amber Boydstun & Cory Struthers"
 date: "April 27-29, 2023"
-output: html_document
-fontsize: 12pt
-
+output:
+  html_document:
+    toc: yes
+    df_print: paged
+  html_notebook:
+    code_folding: show
+    highlight: tango
+    theme: united
+    toc: yes
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
