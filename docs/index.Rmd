@@ -19,15 +19,7 @@ output:
 knitr::opts_knit$set(root.dir = "/Users/cs86487/Dropbox/text-as-data-JUST-CORY-AND-AMBER/modules/data/")
 ```
 
-## Lab objectives
-
-* Pre-process raw text
-* Create and transform corpus
-* Attach metadata (docvars) to corpus
-* Tokenize corpus
-
-
-### 1. Pre-process raw text
+### Introduction
 
 After data has been gathered or collected, we load the text data with the corresponding metadata. We then review patterns. Patterns in the text can provide useful context about the types of analysis choices that may be (in)appropriate based on the data generation process (DGP). 
 
@@ -46,14 +38,18 @@ getwd() # view working directory
 
 ```
 
+
 First we upload the raw data, which sometimes includes metadata about the text itself (e.g., the speaker of the text, source of the text).
 
-``` {r, results = 'hide', message = FALSE}
+``` {r, message = FALSE}
 
 # Load data and add doc_id_keep just as we did in prior module
-news_data = read_xlsx("sample_news_1995-2017_docid.xlsx") 
-tweet_data = read.csv("sample_immigration_tweets_2013-2017_docid.csv") 
-bills_data = readRDS("sample_bills_docid.rds") 
+news_data = read_xlsx("sample_news_1995-2017_docid.xlsx") %>%
+    mutate(doc_id_keep  = paste0("text",row_number()))
+tweet_data = read.csv("sample_immigration_tweets_2013-2017_docid.csv") %>%
+    mutate(doc_id_keep  = paste0("text",row_number()))
+bills_data = readRDS("sample_bills_docid.rds") %>%
+    mutate(doc_id_keep  = paste0("text",row_number()))
 
 # Examine metadata
 names(news_data)
@@ -68,11 +64,12 @@ tweet_data$text[3]
 ```
 
 \
-
-**Question 1: Review a sample of each text dataframe. Describe differences you observe between the sources, both format and content. What patterns do you notice in each data source?**
-
+<center>
+**QUESTION 1: Review a sample of each text dataframe.Describe differences you observe between the sources, both format and content. What patterns do you notice in each data source?**
+</center>
 \
 
+### Manipulate raw text
 
 Oftentimes, we identify a pattern in a body of text from the DGP that could lead to false conclusions. Say that we want to create a network linking members of Congress to other speakers they address in their legislative speeches to uncover informal coalitions among members. Creating this network would involve using computational text methods to identify members of Congress that come up in the text. But members of Congress often yield their time to colleagues at the end of their speech -- a procedure that may have little to do with coalition building. Leaving the statement where time is yielded would introduce considerable noise and error into the analysis.  
 
@@ -81,7 +78,7 @@ One way we can handle such problematic patterns is editing the text before turni
 It's important to note that in many situations, patterns that stem from the DGP will _not_ cause systematic bias in a text analysis. In the example below, we demonstrate one way to use RegEx to remove the text that comes before the phrase "legislative counsel's digestab" in the bills data, including the title of the bill and other preamble. Whether these terms and preamble are problematic depends heavily on the research question. Whereas the phrase would likely cause few inferential challenges in a topic model used to measure issue emphases in legislative bills, it might be problematic in a word frequency count used to measure the distribution of venues legislators pay attention to in policymaking.
 
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Using regular expressions to drop common phrase and preamble in bill text
 bills_data$text[100]
@@ -95,17 +92,18 @@ bills_data$text_processed[100]
   
 
 \
-    **Question 2: Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
-    
+<center>
+    **QUESTION 2: Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
+</center>
 \
 
-## 2. Create a corpus
+### Create a corpus
 
 After collecting data and removing problematic patterns, it's time to create a corpus. A corpus object saves text (character strings) and variables about the documents (metadata). A corpus saves text strings in a format that can be analyzed with text-as-data tools and pairs text with document-level variables (metadata) that tell us something about the text. Almost always, we're interested in understanding differences in the text according to one or more document-level variables. These are called "docvars" in Quanteda.
 
 We can create a toy corpus from a character vector.
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Character vector with names
 animals = c("Amber loves animals", "Animals love Amber", 
@@ -120,7 +118,7 @@ print(anim_corp)
 
 More often, we create a corpus from a dataframe that includes text and docvars. Every corpus includes a "doc_id", which is easier assigned by default in the format "text#" or by the researcher using the `docid_field` option in the `corpus` function. 
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Now that raw is processed, drop old text field
 bills_data$text = NULL
@@ -143,14 +141,14 @@ We can extract metadata using `docvars`, which stores the metadata in the column
 
 We can create docvars in the corpus as well.
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # View unique sessions in bills corpus 
 unique(bills_corp$session)
 
 # Create a docvar 
 bills_corp$sessionStartYear = as.numeric(substr(bills_corp$session, 1, 4))
-bills_corp$sessionStartYear
+head(bills_corp$sessionStartYear, 10)
 
 # View sample of docvars
 head(docvars(bills_corp))
@@ -158,14 +156,13 @@ head(docvars(bills_corp))
 # Make a dataframe of docvars to investigate distributions
 bills_docvars_df = docvars(bills_corp)
 count(bills_docvars_df, session)
-  # Most bills in 2007-2008 session
 
 ```
 
 There are a number of ways to transform the corpus. First, we can subset the corpus based on docvars. Second, we can aslo reshape the corpus into different units: documents, paragraphs, and sentences. Third, we can use extract segments of text based on patterns, including regular expressions, similiar to actions we took we pre-processed the raw text. Segmenting is often needed to split a document based on a speaker. This is a really powerful feature of Quanteda because it does the string splitting for you. All docvars are retained during these transformation.
 
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Subset to original tweets only
 tweet_corp_noRT = corpus_subset(tweet_corp, is_retweet == 0)
@@ -202,15 +199,15 @@ cbind(docvars(tweet_corp_tags), text = as.character(tweet_corp_tags))
 
 
 \
-
-**Question 3: Make a corpus for the news data. Then transform the corpus into paragraph segments.**
-    
+<center>
+**QUESTION 3: Make a corpus for the news data. Then transform the corpus into paragraph segments.**
+</center> 
 \
 
 
 The corpora are now ready for analysis. Like an R dataframe, we can save the corpora as an RDS object to avoid repeating these steps in a workflow.
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 saveRDS(news_corp, "news_corp.RDS")
 saveRDS(tweet_corp, "tweet_corp.RDS")
@@ -218,27 +215,29 @@ saveRDS(bills_corp, "bills_corp.RDS")
 
 ```
 
-## 3. Tokenize corpus and reduce complexity
+\
+
+### Tokenize corpus and reduce complexity
 
 Tokenizing a corpus breaks down a document into discrete words. In English, distinct words are separated using white space, allowing us an easy way of breaking the words apart from one another. From a coding perspective, tokenization is simply splitting the text up by white space. One useful way to tokenize documents in R is to use the `tokens()` from `quanteda package`.Reducing complexity in this way will help us with computation and make downstream analysis parsimonious. Here, we introduce three common steps to reduce the complexity of our text data.
 
 Many text analysis methods require tokenization of the corpus. Tokenization breaks a corpus into vectors of words, n-grams, or sentences. Tokenization is one of the most critical steps in pre-processing because the researcher makes a number of decisions that will affect analysis outcomes. These decisions include:
 
-* Removing punctuation, URLs, symbols, numbers: For many research questions, researchers are often not interested in how many commas, apostrophes, periods, symbols, URLS, or numbers appear within the text, and thus choose to delete them.
+* **Removing punctuation, URLs, symbols, numbers**: For many research questions, researchers are often not interested in how many commas, apostrophes, periods, symbols, URLS, or numbers appear within the text, and thus choose to delete them.
 
-* Lowercase: Replace all captial letters with lowercase letters. The idea is that the word **This** is no different than **this** for most projects and research questions.
+* **Lowercasing**: Replace all captial letters with lowercase letters. The idea is that the word "This" is no different than "this" for most projects and research questions.
 
-* Removing stopwords: Stop words are common words used across documents that do not give much information about the task at hand. In English, common words such as **and**, **the**, and **that** may be removed from the documents to reduce the size and complexity of the feature set.
+* **Removing stopwords**: Stop words are common words used across documents that do not give much information about the task at hand. In English, common words such as "and", "the", and "that" may be removed from the documents to reduce the size and complexity of the feature set.
 
-* Using n-grams (compound tokens)
+* **Generating n-grams**: FIX - compound tokens [collocation analysis]
 
-* Maintaining document length
+* **Stemming**: Many words and phrases are conjugated but hold the same meaning. For example, in most contexts, the word "immigrant" has the same meaning as "immigrants" or "immigration". Asterisks match zero or more characters in `quanteda`. For the concept "immigrant", for example, we can use "immig*". We can also use `tokens_wordstem` in `quanteda` to stem all words.
 
-Many words and phrases are conjugated but hold the same meaning. For example, in most contexts, the word "immigrant" has the same meaning as "immigrants" or "immigration". Asterisks match zero or more characters in `quanteda`. For the concept "immigrant", we can use "immig*". 
+* **Maintaining document length**: FIX - 
 
 `quanteda` provides all the functions we need to reduce the complexity of our text data following the above steps.
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Tokenize with no adjustments
 toks_tweets = tokens(tweet_corp)
@@ -276,15 +275,18 @@ toks_news_subs = tokens(news_corp,
     tokens_tolower() 
 print(toks_news_subs[1:2])
 
+```
 
-### CORY WILL ADD COLLOCATION ANALYSIS HERE
+FIX - CORY WILL ADD COLLOCATION ANALYSIS HERE
+
+```{r, message = FALSE}
 
 ```
 
 \
-
-**Question 4. When might lowercasing or stemming a corpus be problematic?**
-
+<center>
+**QUESTION 4. When might lowercasing or stemming a corpus be problematic?**
+</center>
 \
     
 
@@ -312,22 +314,22 @@ print(toks_news_comp[1:2])
 
 # Use kwic to examine output - remember to use the underscore! 
 kw_news = kwic(toks_news_comp, pattern = c("immigration", "death"))
-#View(kw_news)
+head(kw_news, 10)
 
 kw_news_phrases = kwic(toks_news_comp, pattern = phrase(c("immigration reform", "death penalty")))
-#View(kw_news_phrases)
+head(kw_news_phrases, 10)
 
 # you can also use underscore in "pattern" to produce phrases when text includes compound tokens
 kw_news_phrases = kwic(toks_news_comp, pattern = c("immigration_reform", "death_penalty"))
-#View(kw_news_phrases)
+head(kw_news_phrases, 10)
 
 ```
 
 
 \
-
-**Question 5. Tokenize the tweet data.**
-
+<center>
+**QUESTION 5. Tokenize the tweet data.**
+</center>
 \
 
 
