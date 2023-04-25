@@ -64,9 +64,13 @@ tweet_data$text[3]
 ```
 
 \
-<center>
+
+---
+
 **QUESTION 1: Review a sample of each text dataframe.Describe differences you observe between the sources, both format and content. What patterns do you notice in each data source?**
-</center>
+
+---
+
 \
 
 ### Manipulate raw text
@@ -92,9 +96,13 @@ bills_data$text_processed[100]
   
 
 \
-<center>
-    **QUESTION 2: Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
-</center>
+
+---
+
+**QUESTION 2: Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
+
+---
+
 \
 
 ### Create a corpus
@@ -199,11 +207,14 @@ cbind(docvars(tweet_corp_tags), text = as.character(tweet_corp_tags))
 
 
 \
-<center>
-**QUESTION 3: Make a corpus for the news data. Then transform the corpus into paragraph segments.**
-</center> 
-\
 
+---
+
+**QUESTION 3: Make a corpus for the news data. Then transform the corpus into paragraph segments.**
+
+---
+
+\
 
 The corpora are now ready for analysis. Like an R dataframe, we can save the corpora as an RDS object to avoid repeating these steps in a workflow.
 
@@ -281,31 +292,18 @@ FIX - CORY WILL ADD COLLOCATION ANALYSIS HERE
 
 ```{r, message = FALSE}
 
-# Identify collocations
-news_cols = tokens_select(news_toks, pattern = "^[A-Z]", 
-                                valuetype = "regex", 
-                                case_insensitive = FALSE) %>% 
-                  textstat_collocations(min_count = 10, size=2:3) # specify size
-View(news_cols)
-
-# Incorporate collocations into dfm toks
-news_dfm =  tokens_compound(news_toks, news_cols, concatenator = " ") %>%
-    tokens_wordstem ()%>% # stem words after adding collocations
-    dfm(tolower = TRUE)  %>% 
-    dfm_trim(min_termfreq = 10, min_docfreq = 10)  
-
-# Observe collocations ("united st")
-textstat_frequency(news_dfm) %>%
-  head(50)
 
 ```
 
 \
-<center>
+
+---
+
 **QUESTION 4. When might lowercasing or stemming a corpus be problematic?**
-</center>
-\
-    
+
+---
+
+\ 
 
 More often than not, words only meaningfully represent topics, sentiment, or some other latent concept when put together. For example, "death" on its own has an entirely different meaning than "death penalty". These phrases are called "n-grams" or "compound tokens" and must be included in the process of tokenization or will otherwise not be captured in future analytical steps.
 
@@ -344,9 +342,13 @@ head(kw_news_phrases, 10)
 
 
 \
-<center>
+
+---
+
 **QUESTION 5. Tokenize the tweet data.**
-</center>
+
+---
+
 \
 
 
