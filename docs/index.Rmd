@@ -31,6 +31,7 @@ In this module, we'll need the following packages:
 require(tidyverse)
 require(readxl)
 require(quanteda)
+library(quanteda.textstats)
 
 # Set working directory
 setwd("/Users/cs86487/Dropbox/text-as-data-JUST-CORY-AND-AMBER/modules/data/")
@@ -43,13 +44,10 @@ First we upload the raw data, which sometimes includes metadata about the text i
 
 ``` {r, message = FALSE}
 
-# Load data and add doc_id_keep just as we did in prior module
-news_data = read_xlsx("sample_news_1995-2017_docid.xlsx") %>%
-    mutate(doc_id_keep  = paste0("text",row_number()))
-tweet_data = read.csv("sample_immigration_tweets_2013-2017_docid.csv") %>%
-    mutate(doc_id_keep  = paste0("text",row_number()))
-bills_data = readRDS("sample_bills_docid.rds") %>%
-    mutate(doc_id_keep  = paste0("text",row_number()))
+# Load data and with doc_id_keep
+news_data = read_xlsx("sample_news_1995-2017_docid.xlsx") 
+tweet_data = read.csv("sample_immigration_tweets_2013-2017_docid.csv") 
+bills_data = readRDS("bills_sponsors_sample_2019-2020_docid.rds") 
 
 # Examine metadata
 names(news_data)
@@ -67,7 +65,7 @@ tweet_data$text[3]
 
 ---
 
-**QUESTION 1: Review a sample of each text dataframe.Describe differences you observe between the sources, both format and content. What patterns do you notice in each data source?**
+**Question 1: Review a sample of each text dataframe. Describe differences you observe between the sources, both format and content. What patterns do you notice in each data source?**
 
 ---
 
@@ -94,16 +92,6 @@ bills_data$text_processed[100]
 
 ```
   
-
-\
-
----
-
-**QUESTION 2: Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
-
----
-
-\
 
 ### Create a corpus
 
@@ -134,7 +122,7 @@ bills_data$text = NULL
 # Specify the correct text field 
 bills_corp = corpus(bills_data, text_field = "text_processed")
 print(bills_corp)
-  # Confirming: 19,779 documents with 5 docvars
+  # Confirming: 1,000 documents with 8 docvars
 
 # Remove original dataframe
 rm(bills_data)
@@ -167,7 +155,7 @@ count(bills_docvars_df, session)
 
 ```
 
-There are a number of ways to transform the corpus. First, we can subset the corpus based on docvars. Second, we can aslo reshape the corpus into different units: documents, paragraphs, and sentences. Third, we can use extract segments of text based on patterns, including regular expressions, similiar to actions we took we pre-processed the raw text. Segmenting is often needed to split a document based on a speaker. This is a really powerful feature of Quanteda because it does the string splitting for you. All docvars are retained during these transformation.
+There are a number of ways to transform the corpus. First, we can subset the corpus based on docvars. Second, we can also reshape the corpus into different units: documents, paragraphs, and sentences. Third, we can use extract segments of text based on patterns, including regular expressions, similar to actions we took we pre-processed the raw text. Segmenting is often needed to split a document based on a speaker. This is a really powerful feature of Quanteda because it does the string splitting for you. All docvars are retained during these transformation.
 
 
 ```{r, message = FALSE}
@@ -206,16 +194,6 @@ cbind(docvars(tweet_corp_tags), text = as.character(tweet_corp_tags))
 ```
 
 
-\
-
----
-
-**QUESTION 3: Make a corpus for the news data. Then transform the corpus into paragraph segments.**
-
----
-
-\
-
 The corpora are now ready for analysis. Like an R dataframe, we can save the corpora as an RDS object to avoid repeating these steps in a workflow.
 
 ```{r, message = FALSE}
@@ -236,23 +214,23 @@ Many text analysis methods require tokenization of the corpus. Tokenization brea
 
 * **Removing punctuation, URLs, symbols, numbers**: For many research questions, researchers are often not interested in how many commas, apostrophes, periods, symbols, URLS, or numbers appear within the text, and thus choose to delete them.
 
-* **Lowercasing**: Replace all captial letters with lowercase letters. The idea is that the word "This" is no different than "this" for most projects and research questions.
+* **Lowercasing**: Replace all capital letters with lowercase letters. The idea is that the word "This" is no different than "this" for most projects and research questions.
 
 * **Removing stopwords**: Stop words are common words used across documents that do not give much information about the task at hand. In English, common words such as "and", "the", and "that" may be removed from the documents to reduce the size and complexity of the feature set.
 
-* **Generating n-grams**: FIX - compound tokens [collocation analysis]
+* **Generating n-grams**: We can incorporate elements of positional analysis by identifying *n-grams* or multi-word expressions (phrases). Analysts can identify specific n-grams to capture in a tokens document or convert the whole tokens object to n-grams (n-grams of 2 and 3 are most common). N-grams are important for BOW approaches that would otherwise ignore the conceptual link between compound words like "death" and "penalty". Collocation analysis can be used to identify common n-grams in the text.
 
 * **Stemming**: Many words and phrases are conjugated but hold the same meaning. For example, in most contexts, the word "immigrant" has the same meaning as "immigrants" or "immigration". Asterisks match zero or more characters in `quanteda`. For the concept "immigrant", for example, we can use "immig*". We can also use `tokens_wordstem` in `quanteda` to stem all words.
 
-* **Maintaining document length**: FIX - 
+* **Maintaining document length**: Sometimes we need to retain information on terms (tokens) we remove, for example when applying methods that utilize information on word ordering. `quanteda` offers the `padding` option, which is defaulted to `FALSE`. When true, an empty string will remain where removed tokens previously existed.
 
 `quanteda` provides all the functions we need to reduce the complexity of our text data following the above steps.
 
 ```{r, message = FALSE}
 
 # Tokenize with no adjustments
-toks_tweets = tokens(tweet_corp)
-print(toks_tweets[1:2])
+toks_news = tokens(news_corp)
+print(toks_news[1:2])
 
 # Tokenize removing punctuation, symbols, and numbers
 toks_news = tokens(news_corp, 
@@ -265,7 +243,7 @@ print(toks_news[1:2]) # all the words in each review are broken down into discre
 # Use token_select to further reduce types of tokens *after initial tokenization*
 toks_news_subs = tokens_select(toks_news, pattern = stopwords("en"), 
                                selection = "remove",
-                               padding = FALSE)  # TRUE keeps document length (necessary for positional anlysis) 
+                               padding = FALSE)  # TRUE keeps document length (necessary for positional analysis) 
 print(toks_news_subs[1:2])
 
 # The same task can be accomplished with tokens_remove
@@ -276,6 +254,9 @@ print(toks_news_subs[1:2])
 toks_news_subs = tokens_tolower(toks_news_subs)
 print(toks_news_subs[1:2])
 
+# Stem words
+toks_news_subs = tokens_wordstem(toks_news_subs)
+
 # Alternatively, pipe functions in one ordered step
 toks_news_subs = tokens(news_corp, 
                         remove_url = TRUE, 
@@ -283,15 +264,9 @@ toks_news_subs = tokens(news_corp,
                         remove_symbols = TRUE, 
                         remove_numbers = TRUE) %>% 
     tokens_select(pattern = stopwords("en"), selection = "remove") %>% # option to "keep"
-    tokens_tolower() 
+    tokens_tolower() %>%
+    tokens_wordstem()
 print(toks_news_subs[1:2])
-
-```
-
-FIX - CORY WILL ADD COLLOCATION ANALYSIS HERE
-
-```{r, message = FALSE}
-
 
 ```
 
@@ -299,13 +274,13 @@ FIX - CORY WILL ADD COLLOCATION ANALYSIS HERE
 
 ---
 
-**QUESTION 4. When might lowercasing or stemming a corpus be problematic?**
+**Question 2. When might lowercasing or stemming a corpus be problematic?**
 
 ---
 
 \ 
 
-More often than not, words only meaningfully represent topics, sentiment, or some other latent concept when put together. For example, "death" on its own has an entirely different meaning than "death penalty". These phrases are called "n-grams" or "compound tokens" and must be included in the process of tokenization or will otherwise not be captured in future analytical steps.
+More often than not, words only meaningfully represent topics, sentiment, or some other latent concept when put together. For example, "death" on its own has an entirely different meaning than "death penalty". These phrases are called "n-grams" or "compound tokens" and must be included in the process of tokenization or will otherwise not be captured in the subsequent steps of analysis.
 
 There are two approaches to dealing with phrases. One option is using `tokens_ngrams()`, where the user specifies the number of words that should be included in each token. This approach transforms the entire corpus into phrases. While both efficient and useful when the user is uncertain about the scope of meaningful phrases, the approach also returns a very large tokens object without necessarily adding much information. Alternatively, the user can apply `tokens_compund` to capture n-grams more selectively. 
 
@@ -340,16 +315,80 @@ head(kw_news_phrases, 10)
 
 ```
 
+Finally, how might we identify compound tokens--when we don't know what they are? Collocation analysis, which identifies words that are commonly seen together in a text, is an efficient way to locate common multi-word expressions. Sometimes we are familiar enough with the text that we can identify collocations by entering keywords, as we've done above. More often -- and particularly in large texts -- we need collocation analysis to identify words that commonly co-occur with other words. Analysts can search for collocations with certain attributes, such as proper nouns (with capitalized words), or search for collocations more freely and across the whole text. `textstat_collocations` can be used on tokens or corpus objects.
+
+```{r, message = FALSE}
+
+# Find capitalized collocations - note, we've returned to token object that hasn't been lowercased! 
+news_coll_cap = tokens_select(toks_news, pattern = "^[A-Z]", 
+                                valuetype = "regex", 
+                                case_insensitive = FALSE) %>% 
+              textstat_collocations(min_count = 10, size = 2:3) # term frequency, size of n-gram
+head(news_coll_cap, 20)
+
+# Find all collocations 
+news_corp_coll = textstat_collocations(toks_news, size = 2:3, min_count = 10)
+news_corp_coll
+
+```
 
 \
 
 ---
 
-**QUESTION 5. Tokenize the tweet data.**
+**Question 3. Why might collocation analysis be problematic on a tokens object? How might we improve the meaning of the collocation analysis above?**
 
 ---
 
 \
+
+
+```{r, message = FALSE}
+
+# Remove stopwords
+toks_news_no_stop = tokens_select(toks_news, pattern = stopwords("en"), 
+                               selection = "remove", padding=TRUE) %>% # add padding to preserve sentence structure
+                    tokens_tolower()
+print(toks_news_no_stop[1:2])
+
+# Let's again
+news_corp_coll_no_stop = textstat_collocations(toks_news_no_stop, size = 2:3, min_count = 10)
+news_corp_coll_no_stop
+
+```
+
+
+Finally, we can add collocations to the tokens object, and remove unnecessary padding we preserved in the initial core tokens object.
+
+```{r, message = FALSE}
+
+# Add to tokens document
+news_toks_all =  tokens_compound(toks_news_no_stop, news_corp_coll_no_stop, concatenator = " ") %>%
+    tokens_select(padding=FALSE) %>% # remove padding
+    tokens_wordstem # stem words after adding collocations
+tail(news_toks_all)
+
+```
+
+
+\
+
+---
+
+**Question 3 (BREAKOUT): Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
+
+---
+
+\
+
+
+**Question 4 (BREAKOUT): Make a corpus for the tweet data. Subset the corpus to years 2016 and 2017. Then tokenize the tweet data using options you feel are most appropriate for the text. **
+
+---
+
+\
+
+
 
 
 
