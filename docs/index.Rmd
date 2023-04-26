@@ -375,14 +375,14 @@ tail(news_toks_all)
 
 ---
 
-**Question 3 (BREAKOUT): Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
+**Question 3 (BREAKOUT). Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
 
 ---
 
 \
 
 
-**Question 4 (BREAKOUT): Make a corpus for the tweet data. Subset the corpus to years 2016 and 2017. Then tokenize the tweet data using options you feel are most appropriate for the text. **
+**Question 4 (BREAKOUT). Make a corpus for the tweet data. Subset the corpus to years 2016 and 2017. Then tokenize the tweet data using options you feel are most appropriate for the text. **
 
 ---
 
