@@ -12,7 +12,7 @@
 <meta name="author" content="Amber Boydstun &amp; Cory Struthers" />
 
 
-<title>Pre-processing text</title>
+<title>Pre-processing Text</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1620,7 +1620,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Pre-processing text</h1>
+<h1 class="title toc-ignore">Pre-processing Text</h1>
 <h3 class="subtitle">Introduction to Text as Data</h3>
 <h4 class="author">Amber Boydstun &amp; Cory Struthers</h4>
 <h4 class="date">April 27-29, 2023</h4>
@@ -1776,7 +1776,7 @@ a format that can be analyzed with text-as-data tools and pairs text
 with document-level variables (metadata) that tell us something about
 the text. Almost always, we’re interested in understanding differences
 in the text according to one or more document-level variables. These are
-called “docvars” in Quanteda.</p>
+called “docvars” (<code>docvars</code>) in <code>quanteda</code>.</p>
 <p>We can create a toy corpus from a character vector.</p>
 <pre class="r"><code># Character vector with names
 animals = c(&quot;Amber loves animals&quot;, &quot;Animals love Amber&quot;, 
@@ -1871,8 +1871,8 @@ corpus into different units: documents, paragraphs, and sentences.
 Third, we can use extract segments of text based on patterns, including
 regular expressions, similar to actions we took we pre-processed the raw
 text. Segmenting is often needed to split a document based on a speaker.
-This is a really powerful feature of Quanteda because it does the string
-splitting for you. All docvars are retained during these
+This is a really powerful feature of <code>quanteda</code> because it
+does the string splitting for you. All docvars are retained during these
 transformation.</p>
 <pre class="r"><code># Subset to original tweets only
 tweet_corp_noRT = corpus_subset(tweet_corp, is_retweet == 0)

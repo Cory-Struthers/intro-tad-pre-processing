@@ -1,5 +1,5 @@
 ---
-title: "Pre-processing text"
+title: "Pre-processing Text"
 subtitle: "Introduction to Text as Data"
 author: "Amber Boydstun & Cory Struthers"
 date: "April 27-29, 2023"
@@ -95,7 +95,7 @@ bills_data$text_processed[100]
 
 ### Create a corpus
 
-After collecting data and removing problematic patterns, it's time to create a corpus. A corpus object saves text (character strings) and variables about the documents (metadata). A corpus saves text strings in a format that can be analyzed with text-as-data tools and pairs text with document-level variables (metadata) that tell us something about the text. Almost always, we're interested in understanding differences in the text according to one or more document-level variables. These are called "docvars" in Quanteda.
+After collecting data and removing problematic patterns, it's time to create a corpus. A corpus object saves text (character strings) and variables about the documents (metadata). A corpus saves text strings in a format that can be analyzed with text-as-data tools and pairs text with document-level variables (metadata) that tell us something about the text. Almost always, we're interested in understanding differences in the text according to one or more document-level variables. These are called "docvars" (`docvars`) in `quanteda`.
 
 We can create a toy corpus from a character vector.
 
@@ -155,7 +155,7 @@ count(bills_docvars_df, session)
 
 ```
 
-There are a number of ways to transform the corpus. First, we can subset the corpus based on docvars. Second, we can also reshape the corpus into different units: documents, paragraphs, and sentences. Third, we can use extract segments of text based on patterns, including regular expressions, similar to actions we took we pre-processed the raw text. Segmenting is often needed to split a document based on a speaker. This is a really powerful feature of Quanteda because it does the string splitting for you. All docvars are retained during these transformation.
+There are a number of ways to transform the corpus. First, we can subset the corpus based on docvars. Second, we can also reshape the corpus into different units: documents, paragraphs, and sentences. Third, we can use extract segments of text based on patterns, including regular expressions, similar to actions we took we pre-processed the raw text. Segmenting is often needed to split a document based on a speaker. This is a really powerful feature of `quanteda` because it does the string splitting for you. All docvars are retained during these transformation.
 
 
 ```{r, message = FALSE}
