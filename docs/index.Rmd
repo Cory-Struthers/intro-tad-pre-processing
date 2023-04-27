@@ -325,6 +325,7 @@ news_coll_cap = tokens_select(toks_news, pattern = "^[A-Z]",
                                 case_insensitive = FALSE) %>% 
               textstat_collocations(min_count = 10, size = 2:3) # term frequency, size of n-gram
 head(news_coll_cap, 20)
+  # note, returns items uncapitalized
 
 # Find all collocations 
 news_corp_coll = textstat_collocations(toks_news, size = 2:3, min_count = 10)
@@ -347,11 +348,11 @@ news_corp_coll
 
 # Remove stopwords
 toks_news_no_stop = tokens_select(toks_news, pattern = stopwords("en"), 
-                               selection = "remove", padding=TRUE) %>% # add padding to preserve sentence structure
+                               selection = "remove", padding=TRUE) %>% # padding to preserve sentence structure
                     tokens_tolower()
 print(toks_news_no_stop[1:2])
 
-# Let's again
+# Let's try again
 news_corp_coll_no_stop = textstat_collocations(toks_news_no_stop, size = 2:3, min_count = 10)
 news_corp_coll_no_stop
 
@@ -378,8 +379,6 @@ tail(news_toks_all)
 **Question 3 (BREAKOUT). Write a regular expression to drop the retweet (RT) information in the text column of tweet_data.**
 
 ---
-
-\
 
 
 **Question 4 (BREAKOUT). Make a corpus for the tweet data. Subset the corpus to years 2016 and 2017. Then tokenize the tweet data using options you feel are most appropriate for the text. **
