@@ -75,9 +75,9 @@ tweet_data$text[3]
 
 Oftentimes, we identify a pattern in a body of text from the DGP that could lead to false conclusions. Say that we want to create a network linking members of Congress to other speakers they address in their legislative speeches to uncover informal coalitions among members. Creating this network would involve using computational text methods to identify members of Congress that come up in the text. But members of Congress often yield their time to colleagues at the end of their speech -- a procedure that may have little to do with coalition building. Leaving the statement where time is yielded would introduce considerable noise and error into the analysis.  
 
-One way we can handle such problematic patterns is editing the text before turning it into a corpus. We can use basic functions in R (like gsub and grep) and packages like stringi and stringr to edit text, relying heavily on regular expressions (RegEx) to edit out problematic text. Regular expressions are useful because they can identify a sequence of characters that specifies a search pattern in text. Once that search pattern has been identified, we can use commands in R to make changes to the text. Like many programming opportunities, RegEx can be frustrating to work with but has incredible potential. Websites like *https://regex101.com/*, online R resources for data science -- [Robert Peng's explanation of regular expressions in R, for example](https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html) or [Dave Child's cheat sheet](https://cheatography.com/davechild/cheat-sheets/regular-expressions/pdf_bw/), and Stack Overflow are your friends when you need to edit text.  
+One way we can handle such problematic patterns is editing the text before turning it into a corpus. We can use basic functions in R (like `gsub` and `grepl`) and packages like `stringi` and `stringr` to edit text, relying heavily on regular expressions (RegEx) to edit out problematic text. Regular expressions are useful because they can identify a sequence of characters that specifies a search pattern in text. Once that search pattern has been identified, we can use commands in R to make changes to the text. Like many programming opportunities, RegEx can be frustrating to work with but has incredible potential. Websites like *https://regex101.com/*, online R resources for data science -- [Robert Peng's explanation of regular expressions in R, for example](https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html) or [Dave Child's cheat sheet](https://cheatography.com/davechild/cheat-sheets/regular-expressions/pdf_bw/), and Stack Overflow are your friends when you need to edit text.  
 
-It's important to note that in many situations, patterns that stem from the DGP will _not_ cause systematic bias in a text analysis. In the example below, we demonstrate one way to use RegEx to remove the text that comes before the phrase "legislative counsel's digestab" in the bills data, including the title of the bill and other preamble. Whether these terms and preamble are problematic depends heavily on the research question. Whereas the phrase would likely cause few inferential challenges in a topic model used to measure issue emphases in legislative bills, it might be problematic in a word frequency count used to measure the distribution of venues legislators pay attention to in policymaking.
+It's important to note that in many situations, patterns that stem from the DGP will _not_ cause systematic bias in a text analysis. In the example below, we demonstrate one way to use RegEx to remove the text that comes before the phrase "legislative counsel's digestab" in the bills data, including the title of the bill and other preamble. Whether these terms and preamble are problematic depends heavily on the research question. Whereas the phrase would likely cause few inferential challenges in a topic model used to measure issue emphases in legislative bills (in part because, as we'll learn -- we can drop highly frequent, "non-discriminating" words), it might be problematic in a word frequency count used to measure the distribution of venues legislators pay attention to in policymaking.
 
 
 ```{r, message = FALSE}
@@ -147,10 +147,10 @@ bills_corp$sessionStartYear = as.numeric(substr(bills_corp$session, 1, 4))
 head(bills_corp$sessionStartYear, 10)
 
 # View sample of docvars
-head(docvars(bills_corp))
+head(quanteda::docvars(bills_corp))
 
 # Make a dataframe of docvars to investigate distributions
-bills_docvars_df = docvars(bills_corp)
+bills_docvars_df = quanteda::docvars(bills_corp)
 count(bills_docvars_df, session)
 
 ```
@@ -180,7 +180,7 @@ speakers_corp = corpus_segment(speeches_corp, pattern = "\\b[A-Z].+\\s[A-Z][a-z]
 head(speakers_corp)
 
 # Add speaker name to docvars
-cbind(docvars(speakers_corp), text = as.character(speakers_corp))
+cbind(quanteda::docvars(speakers_corp), text = as.character(speakers_corp))
 
 # Segment at tag
 tweet_corp_tags = corpus_segment(tweet_corp, pattern = "@\\s*(.*?)\\s*:", valuetype = "regex", 
@@ -189,7 +189,7 @@ ndoc(tweet_corp_tags)
 head(tweet_corp_tags)
 
 # Add tagged to docvars 
-cbind(docvars(tweet_corp_tags), text = as.character(tweet_corp_tags))
+cbind(quanteda::docvars(tweet_corp_tags), text = as.character(tweet_corp_tags))
 
 ```
 
