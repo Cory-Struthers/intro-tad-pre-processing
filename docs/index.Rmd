@@ -172,6 +172,8 @@ ndoc(news_corp_wp_nyt)
 bills_corp_sent = corpus_reshape(bills_corp, to = "sentences")
 ndoc(bills_corp_sent)
 
+  # NOTE TO CLASS 4/2023: Corpus_segment can likely be used to split corpus into different speakers based on common patterns in text. 
+
 # Speaker example
 speeches_corp = corpus("Mrs. Taro from Alabama: I yield my time.
                         Ms. Jeffers from Oregon: Thank you Chairman.
@@ -284,33 +286,30 @@ More often than not, words only meaningfully represent topics, sentiment, or som
 
 There are two approaches to dealing with phrases. One option is using `tokens_ngrams()`, where the user specifies the number of words that should be included in each token. This approach transforms the entire corpus into phrases. While both efficient and useful when the user is uncertain about the scope of meaningful phrases, the approach also returns a very large tokens object without necessarily adding much information. Alternatively, the user can apply `tokens_compund` to capture n-grams more selectively. 
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
 # Convert tokens to n-grams using first approach
 toks_news_ngrams = tokens_ngrams(toks_news_subs, n = 2:3) # specifying 2 and 3 n-grams
 head(toks_news_ngrams[[1]], 15)
 head(toks_news_ngrams[[2]], 15)
 
-# Use token_compound to add n-grams selectively
+# Use token_compound to add n-grams selectively - remember to use stem if you've applied it
 toks_news_comp = tokens_compound(toks_news_subs, 
-                                 pattern = phrase(c("climate *", "death penalty", 
-                                                    "border fence", "historical sites")))
+                                 pattern = phrase(c("climat *", "death penalti", 
+                                                    "border fenc", "histor site")))
 print(toks_news_comp[1:2])
 ```
 
 `quanteda` offers a useful function for exploring the context around key words of interest with the function `kwic`. You can specify words or phrases and use the `window` option to specify how many words should appear on either side of the key word or phrase. Note that the results include multiple rows for the same text, each time the key word or phrase is repeated.
 
-```{r, results = 'hide', message = FALSE}
+```{r, message = FALSE}
 
-# Use kwic to examine output - remember to use the underscore! 
-kw_news = kwic(toks_news_comp, pattern = c("immigration", "death"))
+# Use kwic to examine output - remember to use stem if you've applied it
+kw_news = kwic(toks_news_comp, pattern = c("immigr", "death"))
 head(kw_news, 10)
 
-kw_news_phrases = kwic(toks_news_comp, pattern = phrase(c("immigration reform", "death penalty")))
-head(kw_news_phrases, 10)
-
-# you can also use underscore in "pattern" to produce phrases when text includes compound tokens
-kw_news_phrases = kwic(toks_news_comp, pattern = c("immigration_reform", "death_penalty"))
+# Compound tokens
+kw_news_phrases = kwic(toks_news_comp, pattern = phrase(c("immigr reform", "death penalti")))
 head(kw_news_phrases, 10)
 
 ```

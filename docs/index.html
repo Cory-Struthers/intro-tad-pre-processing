@@ -1886,7 +1886,9 @@ ndoc(news_corp_wp_nyt)</code></pre>
 bills_corp_sent = corpus_reshape(bills_corp, to = &quot;sentences&quot;)
 ndoc(bills_corp_sent)</code></pre>
 <pre><code>## [1] 2827</code></pre>
-<pre class="r"><code># Speaker example
+<pre class="r"><code>  # NOTE TO CLASS 4/2023: Corpus_segment can likely be used to split corpus into different speakers based on common patterns in text. 
+
+# Speaker example
 speeches_corp = corpus(&quot;Mrs. Taro from Alabama: I yield my time.
                         Ms. Jeffers from Oregon: Thank you Chairman.
                         Mr. Kip from Minnesota: We must act on our borders now.&quot;)
@@ -2127,14 +2129,34 @@ information. Alternatively, the user can apply
 <code>tokens_compund</code> to capture n-grams more selectively.</p>
 <pre class="r"><code># Convert tokens to n-grams using first approach
 toks_news_ngrams = tokens_ngrams(toks_news_subs, n = 2:3) # specifying 2 and 3 n-grams
-head(toks_news_ngrams[[1]], 15)
-head(toks_news_ngrams[[2]], 15)
-
-# Use token_compound to add n-grams selectively
+head(toks_news_ngrams[[1]], 15)</code></pre>
+<pre><code>##  [1] &quot;border_fenc&quot;          &quot;fenc_block&quot;           &quot;block_bear&quot;          
+##  [4] &quot;bear_migrat&quot;          &quot;migrat_studi&quot;         &quot;studi_find&quot;          
+##  [7] &quot;find_gila&quot;            &quot;gila_bend&quot;            &quot;bend_ariz&quot;           
+## [10] &quot;ariz_--&quot;              &quot;--_much-ballyhoo&quot;     &quot;much-ballyhoo_border&quot;
+## [13] &quot;border_fenc&quot;          &quot;fenc_just&quot;            &quot;just_made&quot;</code></pre>
+<pre class="r"><code>head(toks_news_ngrams[[2]], 15)</code></pre>
+<pre><code>##  [1] &quot;new_philli&quot;       &quot;philli_tour&quot;      &quot;tour_highlight&quot;   &quot;highlight_histor&quot;
+##  [5] &quot;histor_site&quot;      &quot;site_natur&quot;       &quot;natur_exam&quot;       &quot;exam_collar&quot;     
+##  [9] &quot;collar_cold&quot;      &quot;cold_peopl&quot;       &quot;peopl_includ&quot;     &quot;includ_new&quot;      
+## [13] &quot;new_immigr&quot;       &quot;immigr_troop&quot;     &quot;troop_behind&quot;</code></pre>
+<pre class="r"><code># Use token_compound to add n-grams selectively - remember to use stem if you&#39;ve applied it
 toks_news_comp = tokens_compound(toks_news_subs, 
-                                 pattern = phrase(c(&quot;climate *&quot;, &quot;death penalty&quot;, 
-                                                    &quot;border fence&quot;, &quot;historical sites&quot;)))
+                                 pattern = phrase(c(&quot;climat *&quot;, &quot;death penalti&quot;, 
+                                                    &quot;border fenc&quot;, &quot;histor site&quot;)))
 print(toks_news_comp[1:2])</code></pre>
+<pre><code>## Tokens consisting of 2 documents and 8 docvars.
+## text1 :
+##  [1] &quot;border_fenc&quot;   &quot;block&quot;         &quot;bear&quot;          &quot;migrat&quot;       
+##  [5] &quot;studi&quot;         &quot;find&quot;          &quot;gila&quot;          &quot;bend&quot;         
+##  [9] &quot;ariz&quot;          &quot;--&quot;            &quot;much-ballyhoo&quot; &quot;border_fenc&quot;  
+## [ ... and 140 more ]
+## 
+## text2 :
+##  [1] &quot;new&quot;         &quot;philli&quot;      &quot;tour&quot;        &quot;highlight&quot;   &quot;histor_site&quot;
+##  [6] &quot;natur&quot;       &quot;exam&quot;        &quot;collar&quot;      &quot;cold&quot;        &quot;peopl&quot;      
+## [11] &quot;includ&quot;      &quot;new&quot;        
+## [ ... and 131 more ]</code></pre>
 <p><code>quanteda</code> offers a useful function for exploring the
 context around key words of interest with the function
 <code>kwic</code>. You can specify words or phrases and use the
@@ -2142,16 +2164,22 @@ context around key words of interest with the function
 either side of the key word or phrase. Note that the results include
 multiple rows for the same text, each time the key word or phrase is
 repeated.</p>
-<pre class="r"><code># Use kwic to examine output - remember to use the underscore! 
-kw_news = kwic(toks_news_comp, pattern = c(&quot;immigration&quot;, &quot;death&quot;))
-head(kw_news, 10)
-
-kw_news_phrases = kwic(toks_news_comp, pattern = phrase(c(&quot;immigration reform&quot;, &quot;death penalty&quot;)))
-head(kw_news_phrases, 10)
-
-# you can also use underscore in &quot;pattern&quot; to produce phrases when text includes compound tokens
-kw_news_phrases = kwic(toks_news_comp, pattern = c(&quot;immigration_reform&quot;, &quot;death_penalty&quot;))
+<pre class="r"><code># Use kwic to examine output - remember to use stem if you&#39;ve applied it
+kw_news = kwic(toks_news_comp, pattern = c(&quot;immigr&quot;, &quot;death&quot;))
+head(kw_news, 10)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["docname"],"name":[1],"type":["chr"],"align":["left"]},{"label":["from"],"name":[2],"type":["int"],"align":["right"]},{"label":["to"],"name":[3],"type":["int"],"align":["right"]},{"label":["pre"],"name":[4],"type":["chr"],"align":["left"]},{"label":["keyword"],"name":[5],"type":["chr"],"align":["left"]},{"label":["post"],"name":[6],"type":["chr"],"align":["left"]},{"label":["pattern"],"name":[7],"type":["fct"],"align":["left"]}],"data":[{"1":"text1","2":"17","3":"17","4":"border_fenc just made difficult illeg","5":"immigr","6":"slip across mexico unit state","7":"immigr","_rn_":"1"},{"1":"text2","2":"13","3":"13","4":"collar cold peopl includ new","5":"immigr","6":"troop behind color guid independ","7":"immigr","_rn_":"2"},{"1":"text2","2":"103","3":"103","4":"east broad street spotlight role","5":"immigr","6":"american life aim prepar aspir","7":"immigr","_rn_":"3"},{"1":"text3","2":"3","3":"3","4":"one sure","5":"immigr","6":"fix nation 11-million illeg immigr","7":"immigr","_rn_":"4"},{"1":"text3","2":"8","3":"8","4":"immigr fix nation 11-million illeg","5":"immigr","6":"member parti twist knot democrat","7":"immigr","_rn_":"5"},{"1":"text3","2":"49","3":"49","4":"congress frozen indecis stuck house-pass","5":"immigr","6":"reform measur us erect massiv","7":"immigr","_rn_":"6"},{"1":"text3","2":"94","3":"94","4":"offend spirit welcom toward legal","5":"immigr","6":"offer amnesti program matter mani","7":"immigr","_rn_":"7"},{"1":"text5","2":"3","3":"3","4":"o'malley record","5":"immigr","6":"prais fellow democrat chicago maryland","7":"immigr","_rn_":"8"},{"1":"text5","2":"28","3":"28","4":"won prais fellow democrat record","5":"immigr","6":"issu appear campaign ralli chicago","7":"immigr","_rn_":"9"},{"1":"text5","2":"97","3":"97","4":"refuge crisi gutierrez lead advoc","5":"immigr","6":"reform congress said accord audio","7":"immigr","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># Compound tokens
+kw_news_phrases = kwic(toks_news_comp, pattern = phrase(c(&quot;immigr reform&quot;, &quot;death penalti&quot;)))
 head(kw_news_phrases, 10)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["docname"],"name":[1],"type":["chr"],"align":["left"]},{"label":["from"],"name":[2],"type":["int"],"align":["right"]},{"label":["to"],"name":[3],"type":["int"],"align":["right"]},{"label":["pre"],"name":[4],"type":["chr"],"align":["left"]},{"label":["keyword"],"name":[5],"type":["chr"],"align":["left"]},{"label":["post"],"name":[6],"type":["chr"],"align":["left"]},{"label":["pattern"],"name":[7],"type":["fct"],"align":["left"]}],"data":[{"1":"text3","2":"49","3":"50","4":"congress frozen indecis stuck house-pass","5":"immigr reform","6":"measur us erect massiv fenc","7":"immigr reform","_rn_":"1"},{"1":"text5","2":"97","3":"98","4":"refuge crisi gutierrez lead advoc","5":"immigr reform","6":"congress said accord audio record","7":"immigr reform","_rn_":"2"},{"1":"text37","2":"141","3":"142","4":"mayor weigh resolut call comprehens","5":"immigr reform","6":"state determin marijuana law support","7":"immigr reform","_rn_":"3"},{"1":"text62","2":"86","3":"87","4":"permiss congress failur pass meaning","5":"immigr reform","6":"come elect made current immigr","7":"immigr reform","_rn_":"4"},{"1":"text102","2":"92","3":"93","4":"mayor michael r bloomberg advoc","5":"immigr reform","6":"corpor conserv leader line least","7":"immigr reform","_rn_":"5"},{"1":"text156","2":"69","3":"70","4":"carri feder govern lieu real","5":"immigr reform","6":"divid famili punish hardwork immigr","7":"immigr reform","_rn_":"6"},{"1":"text159","2":"61","3":"62","4":"immigr obama recent call champion-in-chief","5":"immigr reform","6":"titl without legisl approv reform","7":"immigr reform","_rn_":"7"},{"1":"text159","2":"174","3":"175","4":"can achiev legal process comprehens","5":"immigr reform","6":"otherwis measur either expir extend","7":"immigr reform","_rn_":"8"},{"1":"text189","2":"24","3":"25","4":"illeg sinc congress pass ground-break","5":"immigr reform","6":"law decad nation histori immigr","7":"immigr reform","_rn_":"9"},{"1":"text189","2":"30","3":"31","4":"reform law decad nation histori","5":"immigr reform","6":"control act began decad lawmak","7":"immigr reform","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>Finally, how might we identify compound tokens–when we don’t know
 what they are? Collocation analysis, which identifies words that are
 commonly seen together in a text, is an efficient way to locate common
